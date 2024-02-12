@@ -1,0 +1,448 @@
+
+
+
+
+Network Working Group                              K. Vairavakkalai, Ed.
+Internet-Draft                                      N. Venkataraman, Ed.
+Intended status: Experimental                     Juniper Networks, Inc.
+Expires: 14 August 2024                                 11 February 2024
+
+
+                 BGP Route Reflector in Forwarding Path
+                   draft-ietf-idr-bgp-pathsel-fwd-rr
+
+Abstract
+
+   The procedures in BGP Route Reflection (RR) spec [RFC4456] primarily
+   deal with scenarios where the RR is not in forwarding path, and is
+   reflecting BGP routes with next hop unchanged.
+
+   These procedures can sometimes result in traffic forwarding loops in
+   deployments where the RR is in forwarding path, and is reflecting BGP
+   routes with next hop set to self.
+
+   This document specifies approaches to minimize possiblity of such
+   traffic forwarding loops.  One of those approaches updates path
+   selection procedures specified in Section 9 of BGP RR.  [RFC4456]
+
+Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 RFC 2119 [RFC2119] RFC 8174 [RFC8174] when, and only when, they
+   appear in all capitals, as shown here.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 14 August 2024.
+
+
+
+
+Vairavakkalai & VenkataraExpires 14 August 2024                 [Page 1]
+
+Internet-Draft       BGP Forwarding Route Reflector        February 2024
+
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   3.  Avoiding Loops Between Route Reflectors in Forwarding Path  .   3
+     3.1.  Path selection change . . . . . . . . . . . . . . . . . .   4
+     3.2.  Other mechanisms  . . . . . . . . . . . . . . . . . . . .   4
+   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   5
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   5
+   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   5
+     6.1.  Normative References  . . . . . . . . . . . . . . . . . .   5
+     6.2.  Informative References  . . . . . . . . . . . . . . . . .   5
+   Appendix A.  Appendix . . . . . . . . . . . . . . . . . . . . . .   5
+     A.1.  Document History  . . . . . . . . . . . . . . . . . . . .   6
+   Contributors  . . . . . . . . . . . . . . . . . . . . . . . . . .   6
+     Co-Authors  . . . . . . . . . . . . . . . . . . . . . . . . . .   6
+     Other Contributors  . . . . . . . . . . . . . . . . . . . . . .   6
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .   8
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   8
+
+1.  Introduction
+
+   The procedures in BGP Route Reflection (RR) spec [RFC4456] primarily
+   deal with scenarios where the RR is not in forwarding path, and is
+   reflecting BGP routes with next hop unchanged.
+
+   These procedures can sometimes result in traffic forwarding loops in
+   deployments where the RR is in forwarding path, and is reflecting BGP
+   routes with next hop set to self.
+
+   This document specifies approaches to minimize possiblity of such
+   traffic forwarding loops.  One of those approaches updates path
+   selection procedures specified in Section 9 of BGP RR.  [RFC4456]
+
+
+
+
+Vairavakkalai & VenkataraExpires 14 August 2024                 [Page 2]
+
+Internet-Draft       BGP Forwarding Route Reflector        February 2024
+
+
+2.  Terminology
+
+   AS: Autonomous System
+
+   NLRI: Network Layer Reachability Information
+
+   AFI: Address Family Identifier
+
+   SAFI: Subsequent Address Family Identifier
+
+   SN: Service Node
+
+   BN: Border Node
+
+   PE: Provider Edge
+
+   EP: Endpoint, e.g. a loopback address in the network
+
+   MPLS: Multi Protocol Label Switching
+
+3.  Avoiding Loops Between Route Reflectors in Forwarding Path
+
+                  [RR26]      [RR27]                       [RR16]
+                   |            |                             |
+                   |            |                             |
+                   |+-[ABR23]--+|+--[ASBR21]---[ASBR13]-+|+--[PE11]--+
+                   ||          |||          `  /        |||          |
+  [CE41]--[PE25]--[P28]       [P29]          `/        [P15]     [CE31]
+                   |           | |           /`         | |          |
+                   |           | |          /  `        | |          |
+                   |           | |         /    `       | |          |
+                   +--[ABR24]--+ +--[ASBR22]---[ASBR14]-+ +--[PE12]--+
+
+
+         |      AS2       |         AS2      |                   |
+     AS4 +    region-1    +      region-2    +       AS1         + AS3
+         |                |                  |                   |
+
+
+  203.0.113.41  ------------ Traffic Direction ---------->  203.0.113.31
+
+     Figure 1: Reference Topology: Inter-domain BGP Transport Network
+
+      A pair of redundant ABRs (ABR23, ABR24 in Figure 1), each acting
+      as an RR with next hop self, may choose each other as best path
+      towards egress PE11, instead of the upstream ASBR (ASBR21 or
+      ASBR22), causing a traffic forwarding loop.
+
+
+
+
+Vairavakkalai & VenkataraExpires 14 August 2024                 [Page 3]
+
+Internet-Draft       BGP Forwarding Route Reflector        February 2024
+
+
+      This happens because of following the path selection rule
+      specified in Section 9 of BGP RR [RFC4456] that tie-breaks on
+      ORIGINATOR_ID before CLUSTER_LIST.  RFC4456 considers pure RR
+      functionality which is not in forwarding path.  When a RR is in
+      forwarding path and reflects routes with next hop self, as is the
+      case for ABR BNs in a BGP transport network, this rule may cause
+      loops.
+
+      This problem can happen for routes of any BGP address family,
+      including BGP LU (1/4 or 2/4) and BGP CT (AFI/SAFIs: 1/76 or
+      2/76).
+
+      Using one or more of the following approaches softens the
+      possibility of such loops in a network with redundant ABRs.
+
+3.1.  Path selection change
+
+      Implementations SHOULD provide a way to alter the tie-breaking
+      rule specified in Section 9 of BGP RR [RFC4456] so as to tie-break
+      on CLUSTER_LIST step before ORIGINATOR_ID step, when performing
+      path selection for BGP routes.
+
+      This document suggests the following modification to the BGP
+      Decision Process Tie Breaking rules (Section 9.1.2.2 of [RFC4271])
+      that can be applied to path selection of BGP routes:
+
+      The following rule SHOULD be inserted between Steps e) and f): a
+      BGP Speaker SHOULD prefer a route with the shorter CLUSTER_LIST
+      length.  The CLUSTER_LIST length is zero if a route does not carry
+      the CLUSTER_LIST attribute.
+
+3.2.  Other mechanisms
+
+      Taking into account some other deployment considerations can also
+      help in avoiding this problem, e.g.,:
+
+      -  IGP metric should be assigned such that "ABR to redundant ABR"
+         cost is inferior to "ABR to upstream ASBR" cost.
+
+      -  Using procedures described in [BGP-CT] , tunnels belonging to
+         non 'best effort' Transport Classes SHOULD NOT be provisioned
+         between ABRs.  This will ensure that the BGP CT route received
+         from an ABR with next hop self will not be usable at a
+         redundant ABR.
+
+
+
+
+
+
+
+Vairavakkalai & VenkataraExpires 14 August 2024                 [Page 4]
+
+Internet-Draft       BGP Forwarding Route Reflector        February 2024
+
+
+4.  IANA Considerations
+
+   This document makes no new requests of IANA.
+
+5.  Security Considerations
+
+   This document does not change the underlying security issues inherent
+   in the existing BGP protocol, such as those described in [RFC4271],
+   [RFC4272] and [RFC4456].
+
+6.  References
+
+6.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC4271]  Rekhter, Y., Ed., Li, T., Ed., and S. Hares, Ed., "A
+              Border Gateway Protocol 4 (BGP-4)", RFC 4271,
+              DOI 10.17487/RFC4271, January 2006,
+              <https://www.rfc-editor.org/info/rfc4271>.
+
+   [RFC4272]  Murphy, S., "BGP Security Vulnerabilities Analysis",
+              RFC 4272, DOI 10.17487/RFC4272, January 2006,
+              <https://www.rfc-editor.org/info/rfc4272>.
+
+   [RFC4456]  Bates, T., Chen, E., and R. Chandra, "BGP Route
+              Reflection: An Alternative to Full Mesh Internal BGP
+              (IBGP)", RFC 4456, DOI 10.17487/RFC4456, April 2006,
+              <https://www.rfc-editor.org/info/rfc4456>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+6.2.  Informative References
+
+   [BGP-CT]   Vairavakkalai, Ed. and Venkataraman, Ed., "BGP Classful
+              Transport Planes", 22 September 2023,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-idr-bgp-
+              ct-16>.
+
+Appendix A.  Appendix
+
+
+
+
+
+
+Vairavakkalai & VenkataraExpires 14 August 2024                 [Page 5]
+
+Internet-Draft       BGP Forwarding Route Reflector        February 2024
+
+
+A.1.  Document History
+
+   The content in this document was introduced as part of [BGP-CT].  But
+   because the described problem is not specific to BGP CT and is useful
+   for other BGP families also, it is being extracted out to this
+   separate document.
+
+Contributors
+
+Co-Authors
+
+   Reshma Das
+   Juniper Networks, Inc.
+   1133 Innovation Way,
+   Sunnyvale, CA 94089
+   United States of America
+   Email: dreshma@juniper.net
+
+
+   Israel Means
+   AT&T
+   2212 Avenida Mara,
+   Chula Vista, California 91914
+   United States of America
+   Email: israel.means@att.com
+
+
+   Csaba Mate
+   KIFU, Hungarian NREN
+   Budapest
+   35 Vaci street,
+   1134
+   Hungary
+   Email: ietf@nop.hu
+
+
+   Deepak J Gowda
+   Extreme Networks
+   55 Commerce Valley Drive West, Suite 300,
+   Thornhill, Toronto, Ontario L3T 7V9
+   Canada
+   Email: dgowda@extremenetworks.com
+
+
+Other Contributors
+
+
+
+
+
+
+Vairavakkalai & VenkataraExpires 14 August 2024                 [Page 6]
+
+Internet-Draft       BGP Forwarding Route Reflector        February 2024
+
+
+   Balaji Rajagopalan
+   Juniper Networks, Inc.
+   Electra, Exora Business Park~Marathahalli - Sarjapur Outer Ring Road,
+   Bangalore 560103
+   KA
+   India
+   Email: balajir@juniper.net
+
+
+   Rajesh M
+   Juniper Networks, Inc.
+   Electra, Exora Business Park~Marathahalli - Sarjapur Outer Ring Road,
+   Bangalore 560103
+   KA
+   India
+   Email: mrajesh@juniper.net
+
+
+   Chaitanya Yadlapalli
+   AT&T
+   200 S Laurel Ave,
+   Middletown,, NJ 07748
+   United States of America
+   Email: cy098d@att.com
+
+
+   Mazen Khaddam
+   Cox Communications Inc.
+   Atlanta, GA
+   United States of America
+   Email: mazen.khaddam@cox.com
+
+
+   Rafal Jan Szarecki
+   Google.
+   1160 N Mathilda Ave, Bldg 5,
+   Sunnyvale,, CA 94089
+   United States of America
+   Email: szarecki@google.com
+
+
+   Xiaohu Xu
+   China Mobile
+   Beijing
+   China
+   Email: xuxiaohu@cmss.chinamobile.com
+
+
+
+
+
+Vairavakkalai & VenkataraExpires 14 August 2024                 [Page 7]
+
+Internet-Draft       BGP Forwarding Route Reflector        February 2024
+
+
+Acknowledgements
+
+   The authors thank Jeff Haas, John Scudder, Susan Hares, Dongjie
+   (Jimmy), Moses Nagarajah, Jeffrey (Zhaohui) Zhang, Joel Harpern,
+   Jingrong Xie, Mohamed Boucadair, Greg Skinner, Simon Leinen,
+   Navaneetha Krishnan, Ravi M R, Chandrasekar Ramachandran, Shradha
+   Hegde, Colby Barth, Vishnu Pavan Beeram, Sunil Malali, William J
+   Britto, R Shilpa, Ashish Kumar (FE), Sunil Kumar Rawat, Abhishek
+   Chakraborty, Richard Roberts, Krzysztof Szarkowicz, John E Drake,
+   Srihari Sangli, Jim Uttaro, Luay Jalil, Keyur Patel, Ketan
+   Talaulikar, Dhananjaya Rao, Swadesh Agarwal, Robert Raszuk, Ahmed
+   Darwish, Aravind Srinivas Srinivasa Prabhakar, Moshiko Nayman, Chris
+   Tripp, Gyan Mishra, Vijay Kestur, Santosh Kolenchery for all the
+   valuable discussions, constructive criticisms, and review comments.
+
+   The decision to not reuse SAFI 128 and create a new address-family to
+   carry these transport-routes was based on suggestion made by Richard
+   Roberts and Krzysztof Szarkowicz.
+
+Authors' Addresses
+
+   Kaliraj Vairavakkalai (editor)
+   Juniper Networks, Inc.
+   1133 Innovation Way,
+   Sunnyvale, CA 94089
+   United States of America
+   Email: kaliraj@juniper.net
+
+
+   Natrajan Venkataraman (editor)
+   Juniper Networks, Inc.
+   1133 Innovation Way,
+   Sunnyvale, CA 94089
+   United States of America
+   Email: natv@juniper.net
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Vairavakkalai & VenkataraExpires 14 August 2024                 [Page 8]
