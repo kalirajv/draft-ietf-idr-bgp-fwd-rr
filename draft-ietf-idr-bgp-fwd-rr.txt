@@ -9,7 +9,7 @@ Expires: 14 August 2024                                 11 February 2024
 
 
                  BGP Route Reflector in Forwarding Path
-                   draft-ietf-idr-bgp-pathsel-fwd-rr
+                       draft-ietf-idr-bgp-fwd-rr
 
 Abstract
 

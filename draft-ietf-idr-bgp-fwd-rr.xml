@@ -10,8 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-idr-bgp-pathsel-fwd-rr"
-     ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-idr-bgp-fwd-rr" ipr="trust200902">
   <front>
     <title abbrev="BGP Forwarding Route Reflector">BGP Route Reflector in
     Forwarding Path</title>
