@@ -8,19 +8,18 @@
 <meta content="Kaliraj Vairavakkalai" name="author">
 <meta content="Natrajan Venkataraman" name="author">
 <meta content="
-       The procedures in BGP Route Reflection (RR) spec   primarily deal with scenarios where the RR is not in
-      forwarding path, and is reflecting BGP routes with next hop
-      unchanged. 
+       The procedures in BGP Route Reflection (RR) spec   primarily deal with scenarios where the RR is
+      reflecting BGP routes with next hop unchanged. 
        These procedures can sometimes result in traffic forwarding loops in
-      deployments where the RR is in forwarding path, and is reflecting BGP
-      routes with next hop set to self. 
+      deployments where the RR is in forwarding path, because of reflecting
+      BGP routes with next hop set to self. 
        This document specifies approaches to minimize possiblity of such
       traffic forwarding loops. One of those approaches updates path selection
       procedures specified in  Section 9 of BGP
       RR. 
     " name="description">
 <meta content="xml2rfc 3.18.2" name="generator">
-<meta content="draft-ietf-idr-bgp-fwd-rr" name="ietf.draft">
+<meta content="draft-ietf-idr-bgp-fwd-rr-01" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.18.2
     Python 3.9.6
@@ -1218,7 +1217,7 @@ li > p:last-of-type:only-child {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Vairavakkalai &amp; Venkataraman</td>
-<td class="center">Expires 14 August 2024</td>
+<td class="center">Expires 19 August 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1228,15 +1227,18 @@ li > p:last-of-type:only-child {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">Network Working Group</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-ietf-idr-bgp-fwd-rr</dd>
+<dd class="internet-draft">draft-ietf-idr-bgp-fwd-rr-01</dd>
+<dt class="label-updates">Updates:</dt>
+<dd class="updates">
+<a href="https://www.rfc-editor.org/rfc/rfc4456" class="eref">4456</a> (if approved)</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-02-11" class="published">11 February 2024</time>
+<time datetime="2024-02-16" class="published">16 February 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-08-14">14 August 2024</time></dd>
+<dd class="expires"><time datetime="2024-08-19">19 August 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1255,12 +1257,11 @@ li > p:last-of-type:only-child {
 <h1 id="title">BGP Route Reflector in Forwarding Path</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">The procedures in BGP Route Reflection (RR) spec <span>[<a href="#RFC4456" class="cite xref">RFC4456</a>]</span> primarily deal with scenarios where the RR is not in
-      forwarding path, and is reflecting BGP routes with next hop
-      unchanged.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">The procedures in BGP Route Reflection (RR) spec <span>[<a href="#RFC4456" class="cite xref">RFC4456</a>]</span> primarily deal with scenarios where the RR is
+      reflecting BGP routes with next hop unchanged.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 <p id="section-abstract-2">These procedures can sometimes result in traffic forwarding loops in
-      deployments where the RR is in forwarding path, and is reflecting BGP
-      routes with next hop set to self.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+      deployments where the RR is in forwarding path, because of reflecting
+      BGP routes with next hop set to self.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 <p id="section-abstract-3">This document specifies approaches to minimize possiblity of such
       traffic forwarding loops. One of those approaches updates path selection
       procedures specified in <span><a href="#RFC4456" class="internal xref">Section 9 of BGP
@@ -1296,7 +1297,7 @@ li > p:last-of-type:only-child {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 14 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 19 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1343,46 +1344,38 @@ li > p:last-of-type:only-child {
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-managabeality-consideration" class="internal xref">Managabeality Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-references" class="internal xref">References</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
-</li>
-            </ul>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-appendix" class="internal xref">Appendix</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-references" class="internal xref">References</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
-                <p id="section-toc.1-1.7.2.1.1"><a href="#appendix-A.1" class="auto internal xref">A.1</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-contributors" class="internal xref">Contributors</a></p>
+            <p id="section-toc.1-1.8.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-appendix" class="internal xref">Appendix</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
-                <p id="section-toc.1-1.8.2.1.1"><a href="#appendix-B.1" class="auto internal xref"></a><a href="#name-co-authors" class="internal xref">Co-Authors</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
-                <p id="section-toc.1-1.8.2.2.1"><a href="#appendix-B.2" class="auto internal xref"></a><a href="#name-other-contributors" class="internal xref">Other Contributors</a></p>
+                <p id="section-toc.1-1.8.2.1.1"><a href="#appendix-A.1" class="auto internal xref">A.1</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1392,12 +1385,13 @@ li > p:last-of-type:only-child {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">The procedures in BGP Route Reflection (RR) spec <span>[<a href="#RFC4456" class="cite xref">RFC4456</a>]</span> primarily deal with scenarios where the RR is not in
-      forwarding path, and is reflecting BGP routes with next hop
-      unchanged.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">The procedures in BGP Route Reflection (RR) spec <span>[<a href="#RFC4456" class="cite xref">RFC4456</a>]</span> primarily deal with scenarios where the RR is
+      reflecting BGP routes with next hop unchanged.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">These procedures can sometimes result in traffic forwarding loops in
       deployments where the RR is in forwarding path, and is reflecting BGP
-      routes with next hop set to self.<a href="#section-1-2" class="pilcrow">¶</a></p>
+      routes with next hop set to self. RR with next hop self is used at ABR
+      nodes in Inter-AS Option C (Section 10, <span>[<a href="#RFC4364" class="cite xref">RFC4364</a>]</span>)
+      deployments.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">This document specifies approaches to minimize possiblity of such
       traffic forwarding loops. One of those approaches updates path selection
       procedures specified in <span><a href="#RFC4456" class="internal xref">Section 9 of BGP
@@ -1407,15 +1401,14 @@ li > p:last-of-type:only-child {
       <h2 id="name-terminology">
 <a href="#section-2" class="section-number selfRef">2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
       </h2>
-<p id="section-2-1">AS: Autonomous System<a href="#section-2-1" class="pilcrow">¶</a></p>
-<p id="section-2-2">NLRI: Network Layer Reachability Information<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-1">ABR: Area Border Router<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">AS: Autonomous System<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3">AFI: Address Family Identifier<a href="#section-2-3" class="pilcrow">¶</a></p>
-<p id="section-2-4">SAFI: Subsequent Address Family Identifier<a href="#section-2-4" class="pilcrow">¶</a></p>
-<p id="section-2-5">SN: Service Node<a href="#section-2-5" class="pilcrow">¶</a></p>
-<p id="section-2-6">BN: Border Node<a href="#section-2-6" class="pilcrow">¶</a></p>
+<p id="section-2-4">BN: Border Node<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">EP: Endpoint, e.g. a loopback address in the network<a href="#section-2-5" class="pilcrow">¶</a></p>
+<p id="section-2-6">MPLS: Multi Protocol Label Switching<a href="#section-2-6" class="pilcrow">¶</a></p>
 <p id="section-2-7">PE: Provider Edge<a href="#section-2-7" class="pilcrow">¶</a></p>
-<p id="section-2-8">EP: Endpoint, e.g. a loopback address in the network<a href="#section-2-8" class="pilcrow">¶</a></p>
-<p id="section-2-9">MPLS: Multi Protocol Label Switching<a href="#section-2-9" class="pilcrow">¶</a></p>
+<p id="section-2-8">SAFI: Subsequent Address Family Identifier<a href="#section-2-8" class="pilcrow">¶</a></p>
 </section>
 <section id="section-3">
       <h2 id="name-avoiding-loops-between-rout">
@@ -1461,20 +1454,25 @@ li > p:last-of-type:only-child {
           <p id="section-3-2.2.1">This happens because of following the path selection rule specified
         in <span><a href="#RFC4456" class="internal xref">Section 9 of BGP RR</a> [<a href="#RFC4456" class="cite xref">RFC4456</a>]</span> that tie-breaks
         on ORIGINATOR_ID before CLUSTER_LIST. RFC4456 considers pure RR
-        functionality which is not in forwarding path. When a RR is in
-        forwarding path and reflects routes with next hop self, as is the case
-        for ABR BNs in a BGP transport network, this rule may cause loops.<a href="#section-3-2.2.1" class="pilcrow">¶</a></p>
+        functionality which leaves next hop unchanged.<a href="#section-3-2.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal ulEmpty" id="section-3-2.3">
-          <p id="section-3-2.3.1">This problem can happen for routes of any BGP address family,
-        including BGP LU (1/4 or 2/4) and BGP CT (AFI/SAFIs: 1/76 or
-        2/76).<a href="#section-3-2.3.1" class="pilcrow">¶</a></p>
+          <p id="section-3-2.3.1">When a RR inserts itself in forwarding path because of reflecting
+        routes with next hop self, as is the case for ABR BNs in an Inter-AS
+        Option C (Section 10 <span>[<a href="#RFC4364" class="cite xref">RFC4364</a>]</span>) BGP transport network,
+        this rule may cause loops.<a href="#section-3-2.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal ulEmpty" id="section-3-2.4">
-          <p id="section-3-2.4.1">Using one or more of the following approaches softens the
-        possibility of such loops in a network with redundant ABRs.<a href="#section-3-2.4.1" class="pilcrow">¶</a></p>
+          <p id="section-3-2.4.1">This problem can happen for routes of any BGP address family,
+        including BGP LU (1/4 or 2/4) and BGP CT (AFI/SAFIs: 1/76 or
+        2/76).<a href="#section-3-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal ulEmpty" id="section-3-2.5">
+          <p id="section-3-2.5.1">Using one or more of the following approaches softens the
+        possibility of such loops in a network with redundant ABRs.<a href="#section-3-2.5.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
+<div id="PathSel">
 <section id="section-3.1">
         <h3 id="name-path-selection-change">
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-path-selection-change" class="section-name selfRef">Path selection change</a>
@@ -1499,55 +1497,83 @@ li > p:last-of-type:only-child {
 </li>
         </ul>
 </section>
+</div>
 <section id="section-3.2">
         <h3 id="name-other-mechanisms">
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-other-mechanisms" class="section-name selfRef">Other mechanisms</a>
         </h3>
 <ul class="normal ulEmpty">
 <li class="normal ulEmpty" id="section-3.2-1.1">
-            <p id="section-3.2-1.1.1">Taking into account some other deployment considerations can also
-          help in avoiding this problem, e.g.,:<a href="#section-3.2-1.1.1" class="pilcrow">¶</a></p>
+            <p id="section-3.2-1.1.1">Some other deployment considerations, if feasible, can also help
+          in avoiding this problem:<a href="#section-3.2-1.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.2-1.1.2.1">
-                <p id="section-3.2-1.1.2.1.1">IGP metric should be assigned such that "ABR to redundant
-              ABR" cost is inferior to "ABR to upstream ASBR" cost.<a href="#section-3.2-1.1.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-3.2-1.1.2.1.1">Configuring the same CLUSTER_ID at the redundant ABR nodes.
+              CLUSTER_ID Loop check will make routes reflected by an ABR
+              unusable at redundant ABRs.<a href="#section-3.2-1.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.2-1.1.2.2">
-                <p id="section-3.2-1.1.2.2.1">Using procedures described in <span>[<a href="#BGP-CT" class="cite xref">BGP-CT</a>]</span> ,
-              tunnels belonging to non 'best effort' Transport Classes SHOULD
-              NOT be provisioned between ABRs. This will ensure that the BGP
-              CT route received from an ABR with next hop self will not be
-              usable at a redundant ABR.<a href="#section-3.2-1.1.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-3.2-1.1.2.2.1">IGP metric assignment, such that "ABR to redundant ABR" cost
+              is inferior to "ABR to upstream ASBR" cost.<a href="#section-3.2-1.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-3.2-1.1.2.3">
+                <p id="section-3.2-1.1.2.3.1">Using procedures described in <span>[<a href="#BGP-CT" class="cite xref">BGP-CT</a>]</span> ,
+              tunnels belonging to non 'best effort' Transport Classes not be
+              provisioned between ABRs. This will ensure that the BGP CT route
+              received from an ABR with next hop self will be unusable at a
+              redundant ABR.<a href="#section-3.2-1.1.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
         </ul>
 </section>
 </section>
-<div id="IANA">
 <section id="section-4">
-      <h2 id="name-iana-considerations">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      <h2 id="name-managabeality-consideration">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-managabeality-consideration" class="section-name selfRef">Managabeality Considerations</a>
       </h2>
-<p id="section-4-1">This document makes no new requests of IANA.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-4-1.1">
+          <p id="section-4-1.1.1">The path selection change mentioned in <a href="#PathSel" class="auto internal xref">Section 3.1</a> can
+        be deployed incrementally at the redundant ABRs, since the forwarding
+        loop would break when one of the ABRs stops chosing the other as best
+        path. Neverthless, it is recommended to consistently provision the
+        path selection change on all redundant ABR/RR nodes in a domain. This
+        provides consistent route selection at the transport layer ABRs in the
+        IBGP domain.<a href="#section-4-1.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal ulEmpty" id="section-4-1.2">
+          <p id="section-4-1.2.1">The operator should carefully consider the overall impact of any of
+        these options on a specific network deployment.<a href="#section-4-1.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+<div id="IANA">
+<section id="section-5">
+      <h2 id="name-iana-considerations">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-5-1">This document makes no new requests of IANA.<a href="#section-5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="Security">
-<section id="section-5">
+<section id="section-6">
       <h2 id="name-security-considerations">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-5-1">This document does not change the underlying security issues inherent
-      in the existing BGP protocol, such as those described in <span>[<a href="#RFC4271" class="cite xref">RFC4271</a>]</span>, <span>[<a href="#RFC4272" class="cite xref">RFC4272</a>]</span> and <span>[<a href="#RFC4456" class="cite xref">RFC4456</a>]</span>.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-6-1">This document does not change the underlying security issues inherent
+      in the existing BGP protocol, such as those described in <span>[<a href="#RFC4271" class="cite xref">RFC4271</a>]</span>, <span>[<a href="#RFC4272" class="cite xref">RFC4272</a>]</span> and <span>[<a href="#RFC4456" class="cite xref">RFC4456</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">Mehanisms described in this document reduce possibility of loops
+      within an IBGP domain. They do not affect routing across EBGP sessions.<a href="#section-6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<section id="section-6">
+<section id="section-7">
       <h2 id="name-references">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
-<section id="section-6.1">
+<section id="section-7.1">
         <h3 id="name-normative-references">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="RFC2119">[RFC2119]</dt>
@@ -1572,14 +1598,18 @@ li > p:last-of-type:only-child {
 <dd class="break"></dd>
 </dl>
 </section>
-<section id="section-6.2">
+<section id="section-7.2">
         <h3 id="name-informative-references">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="BGP-CT">[BGP-CT]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Vairavakkalai, Ed.</span> and <span class="refAuthor">Venkataraman, Ed.</span>, <span class="refTitle">"BGP Classful Transport Planes"</span>, <time datetime="2023-09-22" class="refDate">22 September 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-idr-bgp-ct-16">https://datatracker.ietf.org/doc/html/draft-ietf-idr-bgp-ct-16</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4364">[RFC4364]</dt>
+      <dd>
+<span class="refAuthor">Rosen, E.</span> and <span class="refAuthor">Y. Rekhter</span>, <span class="refTitle">"BGP/MPLS IP Virtual Private Networks (VPNs)"</span>, <span class="seriesInfo">RFC 4364</span>, <span class="seriesInfo">DOI 10.17487/RFC4364</span>, <time datetime="2006-02" class="refDate">February 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4364">https://www.rfc-editor.org/info/rfc4364</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -1599,177 +1629,17 @@ li > p:last-of-type:only-child {
 </section>
 </section>
 </div>
-<div id="Contributors">
-<section id="appendix-B">
-      <h2 id="name-contributors">
-<a href="#name-contributors" class="section-name selfRef">Contributors</a>
-      </h2>
-<div id="Co-Authors">
-<section id="appendix-B.1">
-        <h3 id="name-co-authors">
-<a href="#name-co-authors" class="section-name selfRef">Co-Authors</a>
-        </h3>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Reshma Das</span></div>
-<div dir="auto" class="left"><span class="org">Juniper Networks, Inc.</span></div>
-<div dir="auto" class="left"><span class="street-address">1133 Innovation Way,</span></div>
-<div dir="auto" class="left">
-<span class="locality">Sunnyvale</span>, <span class="region">CA</span> <span class="postal-code">94089</span>
-</div>
-<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:dreshma@juniper.net" class="email">dreshma@juniper.net</a>
-</div>
-</address>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Israel Means</span></div>
-<div dir="auto" class="left"><span class="org">AT&amp;T</span></div>
-<div dir="auto" class="left"><span class="street-address">2212 Avenida Mara,</span></div>
-<div dir="auto" class="left">
-<span class="locality">Chula Vista</span>, <span class="region">California</span> <span class="postal-code">91914</span>
-</div>
-<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:israel.means@att.com" class="email">israel.means@att.com</a>
-</div>
-</address>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Csaba Mate</span></div>
-<div dir="auto" class="left"><span class="org">KIFU, Hungarian NREN</span></div>
-<div dir="auto" class="left"><span class="locality">Budapest</span></div>
-<div dir="auto" class="left"><span class="street-address">35 Vaci street,</span></div>
-<div dir="auto" class="left"><span class="postal-code">1134</span></div>
-<div dir="auto" class="left"><span class="country-name">Hungary</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:ietf@nop.hu" class="email">ietf@nop.hu</a>
-</div>
-</address>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Deepak J Gowda</span></div>
-<div dir="auto" class="left"><span class="org">Extreme Networks</span></div>
-<div dir="auto" class="left"><span class="street-address">55 Commerce Valley Drive West, Suite 300,</span></div>
-<div dir="auto" class="left">
-<span class="locality">Thornhill, Toronto,</span> <span class="region">Ontario</span> <span class="postal-code">L3T 7V9</span>
-</div>
-<div dir="auto" class="left"><span class="country-name">Canada</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:dgowda@extremenetworks.com" class="email">dgowda@extremenetworks.com</a>
-</div>
-</address>
-</section>
-</div>
-<div id="Other_Contributors">
-<section id="appendix-B.2">
-        <h3 id="name-other-contributors">
-<a href="#name-other-contributors" class="section-name selfRef">Other Contributors</a>
-        </h3>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Balaji Rajagopalan</span></div>
-<div dir="auto" class="left"><span class="org">Juniper Networks, Inc.</span></div>
-<div dir="auto" class="left"><span class="street-address">Electra, Exora Business Park~Marathahalli - Sarjapur Outer Ring Road,</span></div>
-<div dir="auto" class="left">
-<span class="locality">Bangalore</span> <span class="postal-code">560103</span>
-</div>
-<div dir="auto" class="left"><span class="region">KA</span></div>
-<div dir="auto" class="left"><span class="country-name">India</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:balajir@juniper.net" class="email">balajir@juniper.net</a>
-</div>
-</address>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Rajesh M</span></div>
-<div dir="auto" class="left"><span class="org">Juniper Networks, Inc.</span></div>
-<div dir="auto" class="left"><span class="street-address">Electra, Exora Business Park~Marathahalli - Sarjapur Outer Ring Road,</span></div>
-<div dir="auto" class="left">
-<span class="locality">Bangalore</span> <span class="postal-code">560103</span>
-</div>
-<div dir="auto" class="left"><span class="region">KA</span></div>
-<div dir="auto" class="left"><span class="country-name">India</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:mrajesh@juniper.net" class="email">mrajesh@juniper.net</a>
-</div>
-</address>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Chaitanya Yadlapalli</span></div>
-<div dir="auto" class="left"><span class="org">AT&amp;T</span></div>
-<div dir="auto" class="left"><span class="street-address">200 S Laurel Ave,</span></div>
-<div dir="auto" class="left">
-<span class="locality">Middletown,</span>, <span class="region">NJ</span> <span class="postal-code">07748</span>
-</div>
-<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:cy098d@att.com" class="email">cy098d@att.com</a>
-</div>
-</address>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Mazen Khaddam</span></div>
-<div dir="auto" class="left"><span class="org">Cox Communications Inc.</span></div>
-<div dir="auto" class="left">
-<span class="locality">Atlanta</span>, <span class="region">GA</span> </div>
-<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:mazen.khaddam@cox.com" class="email">mazen.khaddam@cox.com</a>
-</div>
-</address>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Rafal Jan Szarecki</span></div>
-<div dir="auto" class="left"><span class="org">Google.</span></div>
-<div dir="auto" class="left"><span class="street-address">1160 N Mathilda Ave, Bldg 5,</span></div>
-<div dir="auto" class="left">
-<span class="locality">Sunnyvale,</span>, <span class="region">CA</span> <span class="postal-code">94089</span>
-</div>
-<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:szarecki@google.com" class="email">szarecki@google.com</a>
-</div>
-</address>
-<address class="vcard">
-          <div dir="auto" class="left"><span class="fn nameRole">Xiaohu Xu</span></div>
-<div dir="auto" class="left"><span class="org">China Mobile</span></div>
-<div dir="auto" class="left"><span class="locality">Beijing</span></div>
-<div dir="auto" class="left"><span class="country-name">China</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:xuxiaohu@cmss.chinamobile.com" class="email">xuxiaohu@cmss.chinamobile.com</a>
-</div>
-</address>
-</section>
-</div>
-</section>
-</div>
 <div id="Acknowledgements">
-<section id="appendix-C">
+<section id="appendix-B">
       <h2 id="name-acknowledgements">
 <a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
       </h2>
-<p id="appendix-C-1">The authors thank Jeff Haas, John Scudder, Susan Hares, Dongjie
-      (Jimmy), Moses Nagarajah, Jeffrey (Zhaohui) Zhang, Joel Harpern,
-      Jingrong Xie, Mohamed Boucadair, Greg Skinner, Simon Leinen, Navaneetha
-      Krishnan, Ravi M R, Chandrasekar Ramachandran, Shradha Hegde, Colby
-      Barth, Vishnu Pavan Beeram, Sunil Malali, William J Britto, R Shilpa,
-      Ashish Kumar (FE), Sunil Kumar Rawat, Abhishek Chakraborty, Richard
-      Roberts, Krzysztof Szarkowicz, John E Drake, Srihari Sangli, Jim Uttaro,
-      Luay Jalil, Keyur Patel, Ketan Talaulikar, Dhananjaya Rao, Swadesh
-      Agarwal, Robert Raszuk, Ahmed Darwish, Aravind Srinivas Srinivasa
-      Prabhakar, Moshiko Nayman, Chris Tripp, Gyan Mishra, Vijay Kestur,
-      Santosh Kolenchery for all the valuable discussions, constructive
-      criticisms, and review comments.<a href="#appendix-C-1" class="pilcrow">¶</a></p>
-<p id="appendix-C-2">The decision to not reuse SAFI 128 and create a new address-family to
-      carry these transport-routes was based on suggestion made by Richard
-      Roberts and Krzysztof Szarkowicz.<a href="#appendix-C-2" class="pilcrow">¶</a></p>
+<p id="appendix-B-1">The authors thank Jeff Haas, Jon Hardwick, Keyur Patel, Robert
+      Raszuk, Susan Hares for the discussions and review comments.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-D">
+<section id="appendix-C">
       <h2 id="name-authors-addresses">
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>

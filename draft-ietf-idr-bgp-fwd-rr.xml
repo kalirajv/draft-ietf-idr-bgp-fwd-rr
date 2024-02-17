@@ -10,7 +10,8 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-idr-bgp-fwd-rr" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-idr-bgp-fwd-rr-01" ipr="trust200902"
+     submissionType="IETF" updates="4456">
   <front>
     <title abbrev="BGP Forwarding Route Reflector">BGP Route Reflector in
     Forwarding Path</title>
@@ -57,17 +58,16 @@
       </address>
     </author>
 
-    <date day="11" month="February" year="2024"/>
+    <date day="16" month="February" year="2024"/>
 
     <abstract>
       <t>The procedures in BGP Route Reflection (RR) spec <xref
-      target="RFC4456"/> primarily deal with scenarios where the RR is not in
-      forwarding path, and is reflecting BGP routes with next hop
-      unchanged.</t>
+      target="RFC4456"/> primarily deal with scenarios where the RR is
+      reflecting BGP routes with next hop unchanged.</t>
 
       <t>These procedures can sometimes result in traffic forwarding loops in
-      deployments where the RR is in forwarding path, and is reflecting BGP
-      routes with next hop set to self.</t>
+      deployments where the RR is in forwarding path, because of reflecting
+      BGP routes with next hop set to self.</t>
 
       <t>This document specifies approaches to minimize possiblity of such
       traffic forwarding loops. One of those approaches updates path selection
@@ -88,13 +88,14 @@
   <middle>
     <section title="Introduction">
       <t>The procedures in BGP Route Reflection (RR) spec <xref
-      target="RFC4456"/> primarily deal with scenarios where the RR is not in
-      forwarding path, and is reflecting BGP routes with next hop
-      unchanged.</t>
+      target="RFC4456"/> primarily deal with scenarios where the RR is
+      reflecting BGP routes with next hop unchanged.</t>
 
       <t>These procedures can sometimes result in traffic forwarding loops in
       deployments where the RR is in forwarding path, and is reflecting BGP
-      routes with next hop set to self.</t>
+      routes with next hop set to self. RR with next hop self is used at ABR
+      nodes in Inter-AS Option C (Section 10, <xref target="RFC4364"/>)
+      deployments.</t>
 
       <t>This document specifies approaches to minimize possiblity of such
       traffic forwarding loops. One of those approaches updates path selection
@@ -103,23 +104,21 @@
     </section>
 
     <section title="Terminology">
-      <t>AS: Autonomous System</t>
+      <t>ABR: Area Border Router</t>
 
-      <t>NLRI: Network Layer Reachability Information</t>
+      <t>AS: Autonomous System</t>
 
       <t>AFI: Address Family Identifier</t>
 
-      <t>SAFI: Subsequent Address Family Identifier</t>
-
-      <t>SN: Service Node</t>
-
       <t>BN: Border Node</t>
-
-      <t>PE: Provider Edge</t>
 
       <t>EP: Endpoint, e.g. a loopback address in the network</t>
 
       <t>MPLS: Multi Protocol Label Switching</t>
+
+      <t>PE: Provider Edge</t>
+
+      <t>SAFI: Subsequent Address Family Identifier</t>
     </section>
 
     <section title="Avoiding Loops Between Route Reflectors in Forwarding Path">
@@ -158,9 +157,12 @@
         <t>This happens because of following the path selection rule specified
         in <xref target="RFC4456">Section 9 of BGP RR</xref> that tie-breaks
         on ORIGINATOR_ID before CLUSTER_LIST. RFC4456 considers pure RR
-        functionality which is not in forwarding path. When a RR is in
-        forwarding path and reflects routes with next hop self, as is the case
-        for ABR BNs in a BGP transport network, this rule may cause loops.</t>
+        functionality which leaves next hop unchanged.</t>
+
+        <t>When a RR inserts itself in forwarding path because of reflecting
+        routes with next hop self, as is the case for ABR BNs in an Inter-AS
+        Option C (Section 10 <xref target="RFC4364"/>) BGP transport network,
+        this rule may cause loops.</t>
 
         <t>This problem can happen for routes of any BGP address family,
         including BGP LU (1/4 or 2/4) and BGP CT (AFI/SAFIs: 1/76 or
@@ -170,7 +172,7 @@
         possibility of such loops in a network with redundant ABRs.</t>
       </list>
 
-      <section title="Path selection change">
+      <section anchor="PathSel" title="Path selection change">
         <list>
           <t>Implementations SHOULD provide a way to alter the tie-breaking
           rule specified in <xref target="RFC4456">Section 9 of BGP RR</xref>
@@ -191,19 +193,38 @@
 
       <section title="Other mechanisms">
         <list>
-          <t>Taking into account some other deployment considerations can also
-          help in avoiding this problem, e.g.,: <list>
-              <t>IGP metric should be assigned such that "ABR to redundant
-              ABR" cost is inferior to "ABR to upstream ASBR" cost.</t>
+          <t>Some other deployment considerations, if feasible, can also help
+          in avoiding this problem: <list>
+              <t>Configuring the same CLUSTER_ID at the redundant ABR nodes.
+              CLUSTER_ID Loop check will make routes reflected by an ABR
+              unusable at redundant ABRs.</t>
+
+              <t>IGP metric assignment, such that "ABR to redundant ABR" cost
+              is inferior to "ABR to upstream ASBR" cost.</t>
 
               <t>Using procedures described in <xref target="BGP-CT"/> ,
-              tunnels belonging to non 'best effort' Transport Classes SHOULD
-              NOT be provisioned between ABRs. This will ensure that the BGP
-              CT route received from an ABR with next hop self will not be
-              usable at a redundant ABR.</t>
+              tunnels belonging to non 'best effort' Transport Classes not be
+              provisioned between ABRs. This will ensure that the BGP CT route
+              received from an ABR with next hop self will be unusable at a
+              redundant ABR.</t>
             </list></t>
         </list>
       </section>
+    </section>
+
+    <section title="Managabeality Considerations">
+      <list>
+        <t>The path selection change mentioned in <xref target="PathSel"/> can
+        be deployed incrementally at the redundant ABRs, since the forwarding
+        loop would break when one of the ABRs stops chosing the other as best
+        path. Neverthless, it is recommended to consistently provision the
+        path selection change on all redundant ABR/RR nodes in a domain. This
+        provides consistent route selection at the transport layer ABRs in the
+        IBGP domain.</t>
+
+        <t>The operator should carefully consider the overall impact of any of
+        these options on a specific network deployment.</t>
+      </list>
     </section>
 
     <section anchor="IANA" title="IANA Considerations">
@@ -215,6 +236,10 @@
       in the existing BGP protocol, such as those described in <xref
       target="RFC4271"/>, <xref target="RFC4272"/> and <xref
       target="RFC4456"/>.</t>
+
+      <t>Mehanisms described in this document reduce possibility of loops
+      within an IBGP domain. They do not affect routing across EBGP sessions.
+      </t>
     </section>
   </middle>
 
@@ -246,6 +271,8 @@
           <date day="22" month="09" year="2023"/>
         </front>
       </reference>
+
+      <?rfc include="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4364.xml"?>
     </references>
 
     <section anchor="Appendix A" numbered="true" title="Appendix">
@@ -257,235 +284,10 @@
       </section>
     </section>
 
-    <section anchor="Contributors" numbered="false" title="Contributors">
-      <section anchor="Co-Authors" numbered="false" title="Co-Authors">
-        <author fullname="Reshma Das" initials="D." surname="Das">
-          <organization>Juniper Networks, Inc.</organization>
-
-          <address>
-            <postal>
-              <street>1133 Innovation Way,</street>
-
-              <city>Sunnyvale</city>
-
-              <region>CA</region>
-
-              <code>94089</code>
-
-              <country>US</country>
-            </postal>
-
-            <email>dreshma@juniper.net</email>
-          </address>
-        </author>
-
-        <author fullname="Israel Means" initials="I" surname="Means">
-          <organization abbrev="">AT&amp;T</organization>
-
-          <address>
-            <postal>
-              <street>2212 Avenida Mara,</street>
-
-              <city>Chula Vista</city>
-
-              <region>California</region>
-
-              <code>91914</code>
-
-              <country>USA</country>
-            </postal>
-
-            <email>israel.means@att.com</email>
-          </address>
-        </author>
-
-        <author fullname="Csaba Mate" initials="CS" surname="Mate">
-          <organization abbrev="">KIFU, Hungarian NREN</organization>
-
-          <address>
-            <postal>
-              <street>35 Vaci street,</street>
-
-              <city>Budapest</city>
-
-              <region/>
-
-              <code>1134</code>
-
-              <country>Hungary</country>
-            </postal>
-
-            <email>ietf@nop.hu</email>
-          </address>
-        </author>
-
-        <author fullname="Deepak J Gowda" initials="J" surname="Gowda">
-          <organization abbrev="">Extreme Networks</organization>
-
-          <address>
-            <postal>
-              <street>55 Commerce Valley Drive West, Suite 300,</street>
-
-              <city>Thornhill, Toronto,</city>
-
-              <region>Ontario</region>
-
-              <code>L3T 7V9</code>
-
-              <country>Canada</country>
-            </postal>
-
-            <email>dgowda@extremenetworks.com</email>
-          </address>
-        </author>
-      </section>
-
-      <section anchor="Other Contributors" numbered="false"
-               title="Other Contributors">
-        <author fullname="Balaji Rajagopalan" initials="B."
-                surname="Rajagopalan">
-          <organization>Juniper Networks, Inc.</organization>
-
-          <address>
-            <postal>
-              <street>Electra, Exora Business Park~Marathahalli - Sarjapur
-              Outer Ring Road,</street>
-
-              <city>Bangalore</city>
-
-              <region>KA</region>
-
-              <code>560103</code>
-
-              <country>India</country>
-            </postal>
-
-            <email>balajir@juniper.net</email>
-          </address>
-        </author>
-
-        <author fullname="Rajesh M" initials="M">
-          <organization>Juniper Networks, Inc.</organization>
-
-          <address>
-            <postal>
-              <street>Electra, Exora Business Park~Marathahalli - Sarjapur
-              Outer Ring Road,</street>
-
-              <city>Bangalore</city>
-
-              <region>KA</region>
-
-              <code>560103</code>
-
-              <country>India</country>
-            </postal>
-
-            <email>mrajesh@juniper.net</email>
-          </address>
-        </author>
-
-        <author fullname="Chaitanya Yadlapalli" initials="C"
-                surname="Yadlapalli">
-          <organization abbrev="">AT&amp;T</organization>
-
-          <address>
-            <postal>
-              <street>200 S Laurel Ave,</street>
-
-              <city>Middletown,</city>
-
-              <region>NJ</region>
-
-              <code>07748</code>
-
-              <country>USA</country>
-            </postal>
-
-            <email>cy098d@att.com</email>
-          </address>
-        </author>
-
-        <author fullname="Mazen Khaddam" initials="M" surname="Khaddam">
-          <organization abbrev="">Cox Communications Inc.</organization>
-
-          <address>
-            <postal>
-              <street/>
-
-              <city>Atlanta</city>
-
-              <region>GA</region>
-
-              <code/>
-
-              <country>USA</country>
-            </postal>
-
-            <email>mazen.khaddam@cox.com</email>
-          </address>
-        </author>
-
-        <author fullname="Rafal Jan Szarecki" initials="R" surname="Szarecki">
-          <organization abbrev="">Google.</organization>
-
-          <address>
-            <postal>
-              <street>1160 N Mathilda Ave, Bldg 5,</street>
-
-              <city>Sunnyvale,</city>
-
-              <region>CA</region>
-
-              <code>94089</code>
-
-              <country>USA</country>
-            </postal>
-
-            <email>szarecki@google.com</email>
-          </address>
-        </author>
-
-        <author fullname="Xiaohu Xu" initials="X" surname="Xu">
-          <organization abbrev="">China Mobile</organization>
-
-          <address>
-            <postal>
-              <street/>
-
-              <city>Beijing</city>
-
-              <region/>
-
-              <code/>
-
-              <country>China</country>
-            </postal>
-
-            <email>xuxiaohu@cmss.chinamobile.com</email>
-          </address>
-        </author>
-      </section>
-    </section>
-
     <section anchor="Acknowledgements" numbered="false"
              title="Acknowledgements">
-      <t>The authors thank Jeff Haas, John Scudder, Susan Hares, Dongjie
-      (Jimmy), Moses Nagarajah, Jeffrey (Zhaohui) Zhang, Joel Harpern,
-      Jingrong Xie, Mohamed Boucadair, Greg Skinner, Simon Leinen, Navaneetha
-      Krishnan, Ravi M R, Chandrasekar Ramachandran, Shradha Hegde, Colby
-      Barth, Vishnu Pavan Beeram, Sunil Malali, William J Britto, R Shilpa,
-      Ashish Kumar (FE), Sunil Kumar Rawat, Abhishek Chakraborty, Richard
-      Roberts, Krzysztof Szarkowicz, John E Drake, Srihari Sangli, Jim Uttaro,
-      Luay Jalil, Keyur Patel, Ketan Talaulikar, Dhananjaya Rao, Swadesh
-      Agarwal, Robert Raszuk, Ahmed Darwish, Aravind Srinivas Srinivasa
-      Prabhakar, Moshiko Nayman, Chris Tripp, Gyan Mishra, Vijay Kestur,
-      Santosh Kolenchery for all the valuable discussions, constructive
-      criticisms, and review comments.</t>
-
-      <t>The decision to not reuse SAFI 128 and create a new address-family to
-      carry these transport-routes was based on suggestion made by Richard
-      Roberts and Krzysztof Szarkowicz.</t>
+      <t>The authors thank Jeff Haas, Jon Hardwick, Keyur Patel, Robert
+      Raszuk, Susan Hares for the discussions and review comments.</t>
     </section>
   </back>
 </rfc>
