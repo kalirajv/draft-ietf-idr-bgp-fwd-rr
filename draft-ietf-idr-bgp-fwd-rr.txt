@@ -4,27 +4,29 @@
 
 Network Working Group                              K. Vairavakkalai, Ed.
 Internet-Draft                                      N. Venkataraman, Ed.
-Updates: 4456 (if approved)                       Juniper Networks, Inc.
-Intended status: Experimental                           16 February 2024
-Expires: 19 August 2024
+Intended status: Experimental                     Juniper Networks, Inc.
+Expires: 17 September 2024                                 16 March 2024
 
 
-                 BGP Route Reflector in Forwarding Path
-                      draft-ietf-idr-bgp-fwd-rr-01
+                 BGP Route Reflector with Next Hop Self
+                      draft-ietf-idr-bgp-fwd-rr-02
 
 Abstract
 
-   The procedures in BGP Route Reflection (RR) spec [RFC4456] primarily
+   The procedures in BGP Route Reflection (RR) spec RFC4456 primarily
    deal with scenarios where the RR is reflecting BGP routes with next
-   hop unchanged.
+   hop unchanged.  In some deployments like Inter-AS Option C
+   (Section 10, RFC4364), the ABRs may perform RR functionality with
+   nexthop set to self.  If adequate precautions are not taken, the
+   RFC4456 procedures can result in traffic forwarding loop in such
+   deployments.
 
-   These procedures can sometimes result in traffic forwarding loops in
-   deployments where the RR is in forwarding path, because of reflecting
-   BGP routes with next hop set to self.
-
-   This document specifies approaches to minimize possiblity of such
-   traffic forwarding loops.  One of those approaches updates path
-   selection procedures specified in Section 9 of BGP RR.  [RFC4456]
+   This document illustrates one such looping scenario, and specifies
+   approaches to minimize possiblity of traffic forwarding loop in such
+   deployments.  An example with Inter-AS Option C (Section 10, RFC4364)
+   deployment is used, where RR with next hop self is used at redundant
+   ABRs when they re-advertise BGP transport family routes between
+   multiple IGP domains.
 
 Requirements Language
 
@@ -49,14 +51,14 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 August 2024.
 
 
-
-Vairavakkalai & VenkataraExpires 19 August 2024                 [Page 1]
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 1]
 
-Internet-Draft       BGP Forwarding Route Reflector        February 2024
+Internet-Draft                 BGP RR NHS                     March 2024
 
+
+   This Internet-Draft will expire on 17 September 2024.
 
 Copyright Notice
 
@@ -76,42 +78,48 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
-   3.  Avoiding Loops Between Route Reflectors in Forwarding Path  .   3
-     3.1.  Path selection change . . . . . . . . . . . . . . . . . .   4
-     3.2.  Other mechanisms  . . . . . . . . . . . . . . . . . . . .   4
-   4.  Managabeality Considerations  . . . . . . . . . . . . . . . .   5
-   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   5
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   5
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   5
-     7.1.  Normative References  . . . . . . . . . . . . . . . . . .   5
-     7.2.  Informative References  . . . . . . . . . . . . . . . . .   6
-   Appendix A.  Appendix . . . . . . . . . . . . . . . . . . . . . .   6
-     A.1.  Document History  . . . . . . . . . . . . . . . . . . . .   6
-   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .   6
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   6
+     2.1.  Definitions and Notations . . . . . . . . . . . . . . . .   3
+   3.  Problem Description . . . . . . . . . . . . . . . . . . . . .   4
+   4.  Solution Approaches . . . . . . . . . . . . . . . . . . . . .   5
+     4.1.  Using Same Cluster ID at the ABRs . . . . . . . . . . . .   6
+     4.2.  Using IGP Metric Management . . . . . . . . . . . . . . .   6
+     4.3.  Using AIGP Cost Management  . . . . . . . . . . . . . . .   6
+     4.4.  Using BGP CT Management . . . . . . . . . . . . . . . . .   7
+   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . .   7
+     7.2.  Informative References  . . . . . . . . . . . . . . . . .   8
+   Appendix A.  Appendix . . . . . . . . . . . . . . . . . . . . . .   8
+     A.1.  Document History  . . . . . . . . . . . . . . . . . . . .   8
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .   9
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Introduction
 
-   The procedures in BGP Route Reflection (RR) spec [RFC4456] primarily
+   The procedures in BGP Route Reflection (RR) spec RFC4456 primarily
    deal with scenarios where the RR is reflecting BGP routes with next
-   hop unchanged.
-
-   These procedures can sometimes result in traffic forwarding loops in
-   deployments where the RR is in forwarding path, and is reflecting BGP
-   routes with next hop set to self.  RR with next hop self is used at
-   ABR nodes in Inter-AS Option C (Section 10, [RFC4364]) deployments.
-
-   This document specifies approaches to minimize possiblity of such
-   traffic forwarding loops.  One of those approaches updates path
-   selection procedures specified in Section 9 of BGP RR.  [RFC4456]
+   hop unchanged.  In some deployments like Inter-AS Option C
+   (Section 10, RFC4364), the ABRs may perform RR functionality with
+   nexthop set to self.  If adequate precautions are not taken, the
+   RFC4456 procedures can result in traffic forwarding loop in such
+   deployments.
 
 
 
 
 
-Vairavakkalai & VenkataraExpires 19 August 2024                 [Page 2]
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 2]
 
-Internet-Draft       BGP Forwarding Route Reflector        February 2024
+Internet-Draft                 BGP RR NHS                     March 2024
+
+
+   This document illustrates one such looping scenario, and specifies
+   approaches to minimize possiblity of traffic forwarding loop in such
+   deployments.  An example with Inter-AS Option C (Section 10, RFC4364)
+   deployment is used, where RR with next hop self is used at redundant
+   ABRs when they re-advertise BGP transport family routes between
+   multiple IGP domains.
 
 
 2.  Terminology
@@ -132,117 +140,234 @@ Internet-Draft       BGP Forwarding Route Reflector        February 2024
 
    SAFI: Subsequent Address Family Identifier
 
-3.  Avoiding Loops Between Route Reflectors in Forwarding Path
+2.1.  Definitions and Notations
 
-                  [RR26]      [RR27]                       [RR16]
-                   |            |                             |
-                   |            |                             |
-                   |+-[ABR23]--+|+--[ASBR21]---[ASBR13]-+|+--[PE11]--+
-                   ||          |||          `  /        |||          |
-  [CE41]--[PE25]--[P28]       [P29]          `/        [P15]     [CE31]
-                   |           | |           /`         | |          |
-                   |           | |          /  `        | |          |
-                   |           | |         /    `       | |          |
-                   +--[ABR24]--+ +--[ASBR22]---[ASBR14]-+ +--[PE12]--+
+   Service Family: A BGP address family used for advertising routes for
+   destinations in "data traffic".  For example, AFI/SAFIs 1/1 or 1/128.
 
+   Transport Family: A BGP address family used for advertising tunnels,
+   which are in turn used by service routes for resolution.  For
+   example, BGP LU (AFI/SAFI : 1/4) or BGP CT (AFI/SAFI : 1/76).
 
-         |      AS2       |         AS2      |                   |
-     AS4 +    region-1    +      region-2    +       AS1         + AS3
-         |                |                  |                   |
+   Transport Tunnel : A tunnel over which a service may place traffic.
+   Such a tunnel can be provisioned or signaled using a variety of
+   means.  For example, Generic Routing Encapsulation (GRE), UDP, LDP,
+   RSVP-TE, IGP FLEX-ALGO or SRTE.
 
+   Tunnel Route: A Route to Tunnel Destination/Endpoint that is
+   installed at the headend (ingress) of the tunnel.
 
-  203.0.113.41  ------------ Traffic Direction ---------->  203.0.113.31
-
-     Figure 1: Reference Topology: Inter-domain BGP Transport Network
-
-      A pair of redundant ABRs (ABR23, ABR24 in Figure 1), each acting
-      as an RR with next hop self, may choose each other as best path
-      towards egress PE11, instead of the upstream ASBR (ASBR21 or
-      ASBR22), causing a traffic forwarding loop.
+   Tunnel Domain: A domain of the network under a single administrative
+   control, containing transport tunnels between Service Nodes (SNs) and
+   Border Nodes (BNs).
 
 
 
 
 
-
-Vairavakkalai & VenkataraExpires 19 August 2024                 [Page 3]
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 3]
 
-Internet-Draft       BGP Forwarding Route Reflector        February 2024
+Internet-Draft                 BGP RR NHS                     March 2024
 
+
+3.  Problem Description
+
+                [RR26]      [RR27]
+                 |            |
+                 |            |
+                 |+-[ABR23]--+|+--[ASBR21]---[ASBR13]-+
+                 ||          |||          `  /        |
+[CE41]--[PE25]--[P28]       [P29]          `/       [P15]-[PE11]--[CE31]
+                 |           | |           /`         |
+                 |           | |         /    `       |
+                 +--[ABR24]--+ +--[ASBR22]---[ASBR14]-+
+
+
+       |      AS2       |         AS2      |                   |
+   AS4 +    region-1    +      region-2    +       AS1         + AS3
+       |                |                  |                   |
+
+
+203.0.113.41  ------------ Traffic Direction ---------->  203.0.113.31
+
+   Figure 1: Reference Topology: Inter-domain BGP Transport Network
+
+      This topology shows an Inter-AS option C (Section 10, [RFC4364])
+      provider MPLS network that consists of two ASes, AS1 and AS2.
+      They are serving customer networks AS3, AS4 respectively.  Traffic
+      direction being described is CE41 to CE31.
+
+      AS2 is further divided into two regions.  There are three tunnel
+      domains in provider's network: The two regions in AS1 use RSVP
+      intra-domain tunnel.  AS2 also uses RSVP-TE intra-domain tunnels.
+      MPLS forwarding is used within these domains and on inter-domain
+      links.  BGP LU (AFI/SAFI: 1/4) is the transport family providing
+      reachability between PE loopbacks PE25 and PE11.
+
+      Forwarding of PE25 to PE11 BGP LU traffic in AS2 region-2 is the
+      focus of this discussion.
+
+      The following RSVP-TE tunnels exist in region-2.
+
+      -  ABR23_to_ASBR21 - metric 40
+
+      -  ABR23_to_ASBR22 - metric 30
+
+      -  ABR24_to_ASBR21 - metric 40
+
+      -  ABR24_to_ASBR22 - metric 30
+
+      -  ABR23_to_ABR24 - metric 30
+
+
+
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 4]
+
+Internet-Draft                 BGP RR NHS                     March 2024
+
+
+      -  ABR24_to_ABR23 - metric 30
+
+      The Router-ID of ASBR21 is better than ASBR22 from perspective of
+      the BGP path selection.
+
+      The problem is that the pair of redundant ABRs (ABR23, ABR24 in
+      Figure 1), each acting as an RR with next hop self, may choose
+      each other as best path towards egress PE11, instead of the
+      upstream ASBR (ASBR21 or ASBR22), causing a traffic forwarding
+      loop.
 
       This happens because of following the path selection rule
       specified in Section 9 of BGP RR [RFC4456] that tie-breaks on
       ORIGINATOR_ID before CLUSTER_LIST.  RFC4456 considers pure RR
       functionality which leaves next hop unchanged.
 
-      When a RR inserts itself in forwarding path because of reflecting
-      routes with next hop self, as is the case for ABR BNs in an Inter-
-      AS Option C (Section 10 [RFC4364]) BGP transport network, this
-      rule may cause loops.
+      This problem is more probable to happen for routes of BGP
+      transport address families in Inter-AS Option C (Section 10
+      [RFC4364]) networks, like BGP LU (1/4 or 2/4) and BGP CT (AFI/
+      SAFIs: 1/76 or 2/76), because the ABRs perform RR with nexthop
+      self functionality for these families.
 
-      This problem can happen for routes of any BGP address family,
-      including BGP LU (1/4 or 2/4) and BGP CT (AFI/SAFIs: 1/76 or
-      2/76).
+      Summarising, the necessary conditions for this problem are:
 
-      Using one or more of the following approaches softens the
-      possibility of such loops in a network with redundant ABRs.
+      -  Redundant ABRs perform RR with nexthop self
 
-3.1.  Path selection change
+      -  The redundant ABRs using distinct CLUSTER_ID
 
-      Implementations SHOULD provide a way to alter the tie-breaking
-      rule specified in Section 9 of BGP RR [RFC4456] so as to tie-break
-      on CLUSTER_LIST step before ORIGINATOR_ID step, when performing
-      path selection for BGP routes.
+      -  Addpath send enabled in Region 1, from RR26 to the redundant
+         ABRs ABR23, ABR24
 
-      This document suggests the following modification to the BGP
-      Decision Process Tie Breaking rules (Section 9.1.2.2 of [RFC4271])
-      that can be applied to path selection of BGP routes:
+      -  ABR23, ABR24 using per-prefix label allocation mode for the
+         transport layered families.
 
-      The following rule SHOULD be inserted between Steps e) and f): a
-      BGP Speaker SHOULD prefer a route with the shorter CLUSTER_LIST
-      length.  The CLUSTER_LIST length is zero if a route does not carry
-      the CLUSTER_LIST attribute.
+      -  IGP metric situations in Region 2, as explained above.
 
-3.2.  Other mechanisms
+      -  Existance of Inter-ABR tunnels.
 
-      Some other deployment considerations, if feasible, can also help
-      in avoiding this problem:
+      -  RFC4456 tie-breaks on ORIGINATOR_ID before CLUSTER_LIST
 
-      -  Configuring the same CLUSTER_ID at the redundant ABR nodes.
-         CLUSTER_ID Loop check will make routes reflected by an ABR
-         unusable at redundant ABRs.
+      -  Router-ID values for upstream ASBRs.
 
-      -  IGP metric assignment, such that "ABR to redundant ABR" cost is
-         inferior to "ABR to upstream ASBR" cost.
+4.  Solution Approaches
+
+   Using one or more of the following approaches softens the possibility
+   of such loops in an Inter-AS Option C network with redundant ABRs.
+   These approaches manage one of the above necessary conditions.
 
 
 
 
-
-
-
-Vairavakkalai & VenkataraExpires 19 August 2024                 [Page 4]
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 5]
 
-Internet-Draft       BGP Forwarding Route Reflector        February 2024
+Internet-Draft                 BGP RR NHS                     March 2024
 
 
-      -  Using procedures described in [BGP-CT] , tunnels belonging to
-         non 'best effort' Transport Classes not be provisioned between
-         ABRs.  This will ensure that the BGP CT route received from an
-         ABR with next hop self will be unusable at a redundant ABR.
+4.1.  Using Same Cluster ID at the ABRs
 
-4.  Managabeality Considerations
+   Configuring the same CLUSTER_ID at the redundant ABR nodes.
 
-      The path selection change mentioned in Section 3.1 can be deployed
-      incrementally at the redundant ABRs, since the forwarding loop
-      would break when one of the ABRs stops chosing the other as best
-      path.  Neverthless, it is recommended to consistently provision
-      the path selection change on all redundant ABR/RR nodes in a
-      domain.  This provides consistent route selection at the transport
-      layer ABRs in the IBGP domain.
+   CLUSTER_ID Loop check will make routes reflected by an ABR unusable
+   at the redundant ABRs.
 
-      The operator should carefully consider the overall impact of any
-      of these options on a specific network deployment.
+   This approach provides a stable way to avoid this loop, and is not
+   affected by network churn.
+
+   However this approach does not allow the ABR-ABR tunnels to be used
+   as backup path, in the event where an ABR looses all tunnels to
+   upstream ASBR.
+
+4.2.  Using IGP Metric Management
+
+   Assign IGP metrics, such that "ABR to redundant ABR" cost is inferior
+   to "ABR to upstream ASBR" cost.
+
+   Then 'IGP metric' based tie-breaker will make an ABR chose the ASBRs
+   as best path, instead of redundant ABR.
+
+   Since IGP metrics may change during network churn caused by events
+   like link down, this approach needs careful planning to handle all
+   possible IGP metric change scenarios.  Debugging any loops caused by
+   such transient situations may be much harder.
+
+   This approach allows using the ABR-ABR tunnels to be used as backup
+   path, in the event where an ABR looses reachability to upstream ASBR.
+   But there is a possibility of transient forwarding loop until BGP
+   withdrawals are received, in situations where the redundant ABRs
+   simultanously loose tunnel to upstream ASBR (like upstream ASBR
+   failure event).  Some mechanism like the one described in [MNH] Sec
+   A.9 may be needed to handle the transient forwarding loop problem.
+
+4.3.  Using AIGP Cost Management
+
+   Using AIGP Cost in the network accumulates the IGP metric at "each
+   next hop self" re-advertisement.  This provides a better accumulated
+   metric for the path.
+
+   Then 'AIGP cost' based tie-breaker will make an ABR chose the ASBRs
+   as best path, instead of redundant ABR.
+
+   This approach also needs careful IGP metric planning because it
+   depends on the underlying IGP metric view of each node.
+
+
+
+
+
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 6]
+
+Internet-Draft                 BGP RR NHS                     March 2024
+
+
+   However this approach allows using the ABR-ABR tunnels to be used as
+   backup path, in the event where an ABR looses all tunnels to upstream
+   ASBR.
+
+   This approach allows using the ABR-ABR tunnels to be used as backup
+   path, in the event where an ABR looses reachability to upstream ASBR.
+   But there is a possibility of transient forwarding loop until BGP
+   withdrawals are received, in situations where the redundant ABRs
+   simultanously loose tunnel to upstream ASBR (like upstream ASBR
+   failure event).  Some mechanism like the one described in MNH Sec A.9
+   may be needed to handle the transient forwarding loop problem.
+
+4.4.  Using BGP CT Management
+
+   In a BGP CT network, using procedures described in [BGP-CT] , tunnels
+   belonging to a certain Transport Class (TC) may not be provisioned
+   between the redundant ABRs, or may not be included in the customized
+   Resolution Scheme used to resolve BGP CT routes with that TC.
+
+   This will ensure that the BGP CT route received with redundant ABR as
+   next hop will be Unusable at the receiving ABR, because it will fail
+   resolving the next hop.
+
+   This approach needs Transport Class and Resolution Scheme planning in
+   the BGP CT network, and provides a stable way to avoid this loop, and
+   is not affected by network churn.
+
+   However this approach does not allow the ABR-ABR TC tunnels to be
+   used as backup path, in the event where an ABR looses all tunnels for
+   that TC to upstream ASBR.
 
 5.  IANA Considerations
 
@@ -262,6 +387,13 @@ Internet-Draft       BGP Forwarding Route Reflector        February 2024
 
 7.1.  Normative References
 
+
+
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 7]
+
+Internet-Draft                 BGP RR NHS                     March 2024
+
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -271,16 +403,6 @@ Internet-Draft       BGP Forwarding Route Reflector        February 2024
               Border Gateway Protocol 4 (BGP-4)", RFC 4271,
               DOI 10.17487/RFC4271, January 2006,
               <https://www.rfc-editor.org/info/rfc4271>.
-
-
-
-
-
-
-Vairavakkalai & VenkataraExpires 19 August 2024                 [Page 5]
-
-Internet-Draft       BGP Forwarding Route Reflector        February 2024
-
 
    [RFC4272]  Murphy, S., "BGP Security Vulnerabilities Analysis",
               RFC 4272, DOI 10.17487/RFC4272, January 2006,
@@ -298,9 +420,13 @@ Internet-Draft       BGP Forwarding Route Reflector        February 2024
 7.2.  Informative References
 
    [BGP-CT]   Vairavakkalai, Ed. and Venkataraman, Ed., "BGP Classful
-              Transport Planes", 22 September 2023,
+              Transport Planes", 17 March 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-idr-bgp-
-              ct-16>.
+              ct-28>.
+
+   [MNH]      Vairavakkalai, Ed., "BGP MultiNexthop Attribute", 17 March
+              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
+              idr-multinexthop-attribute-00>.
 
    [RFC4364]  Rosen, E. and Y. Rekhter, "BGP/MPLS IP Virtual Private
               Networks (VPNs)", RFC 4364, DOI 10.17487/RFC4364, February
@@ -315,6 +441,15 @@ A.1.  Document History
    for other BGP families also, it is being extracted out to this
    separate document.
 
+
+
+
+
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 8]
+
+Internet-Draft                 BGP RR NHS                     March 2024
+
+
 Acknowledgements
 
    The authors thank Jeff Haas, Jon Hardwick, Keyur Patel, Robert
@@ -328,14 +463,6 @@ Authors' Addresses
    Sunnyvale, CA 94089
    United States of America
    Email: kaliraj@juniper.net
-
-
-
-
-
-Vairavakkalai & VenkataraExpires 19 August 2024                 [Page 6]
-
-Internet-Draft       BGP Forwarding Route Reflector        February 2024
 
 
    Natrajan Venkataraman (editor)
@@ -374,19 +501,4 @@ Internet-Draft       BGP Forwarding Route Reflector        February 2024
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Vairavakkalai & VenkataraExpires 19 August 2024                 [Page 7]
+Vairavakkalai & VenkatarExpires 17 September 2024               [Page 9]
