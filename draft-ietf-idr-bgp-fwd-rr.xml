@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-idr-bgp-fwd-rr-02" ipr="trust200902"
+<rfc category="exp" docName="draft-ietf-idr-bgp-fwd-rr-03" ipr="trust200902"
      submissionType="IETF" updates="">
   <front>
     <title abbrev="BGP RR NHS">BGP Route Reflector with Next Hop Self</title>
@@ -57,7 +57,7 @@
       </address>
     </author>
 
-    <date day="16" month="March" year="2024"/>
+    <date day="17" month="September" year="2024"/>
 
     <abstract>
       <t>The procedures in BGP Route Reflection (RR) spec RFC4456 primarily
@@ -176,8 +176,8 @@
         Traffic direction being described is CE41 to CE31.</t>
 
         <t>AS2 is further divided into two regions. There are three tunnel
-        domains in provider's network: The two regions in AS1 use RSVP
-        intra-domain tunnel. AS2 also uses RSVP-TE intra-domain tunnels. MPLS
+        domains in provider's network: The two regions in AS2 use RSVP
+        intra-domain tunnel. AS1 also uses RSVP-TE intra-domain tunnels. MPLS
         forwarding is used within these domains and on inter-domain links. BGP
         LU (AFI/SAFI: 1/4) is the transport family providing reachability
         between PE loopbacks PE25 and PE11.</t>
@@ -246,7 +246,7 @@
 
       <section anchor="SameClusterID"
                title="Using Same Cluster ID at the ABRs">
-        <t>Configuring the same CLUSTER_ID at the redundant ABR nodes. </t>
+        <t>Configuring the same CLUSTER_ID at the redundant ABR nodes.</t>
 
         <t>CLUSTER_ID Loop check will make routes reflected by an ABR unusable
         at the redundant ABRs.</t>
@@ -264,7 +264,7 @@
         inferior to "ABR to upstream ASBR" cost.</t>
 
         <t>Then 'IGP metric' based tie-breaker will make an ABR chose the
-        ASBRs as best path, instead of redundant ABR. </t>
+        ASBRs as best path, instead of redundant ABR.</t>
 
         <t>Since IGP metrics may change during network churn caused by events
         like link down, this approach needs careful planning to handle all
@@ -287,7 +287,7 @@
         metric for the path.</t>
 
         <t>Then 'AIGP cost' based tie-breaker will make an ABR chose the ASBRs
-        as best path, instead of redundant ABR. </t>
+        as best path, instead of redundant ABR.</t>
 
         <t>This approach also needs careful IGP metric planning because it
         depends on the underlying IGP metric view of each node.</t>
@@ -310,7 +310,7 @@
         target="BGP-CT"/> , tunnels belonging to a certain Transport Class
         (TC) may not be provisioned between the redundant ABRs, or may not be
         included in the customized Resolution Scheme used to resolve BGP CT
-        routes with that TC. </t>
+        routes with that TC.</t>
 
         <t>This will ensure that the BGP CT route received with redundant ABR
         as next hop will be Unusable at the receiving ABR, because it will

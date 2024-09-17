@@ -5,11 +5,11 @@
 Network Working Group                              K. Vairavakkalai, Ed.
 Internet-Draft                                      N. Venkataraman, Ed.
 Intended status: Experimental                     Juniper Networks, Inc.
-Expires: 17 September 2024                                 16 March 2024
+Expires: 21 March 2025                                 17 September 2024
 
 
                  BGP Route Reflector with Next Hop Self
-                      draft-ietf-idr-bgp-fwd-rr-02
+                      draft-ietf-idr-bgp-fwd-rr-03
 
 Abstract
 
@@ -53,12 +53,12 @@ Status of This Memo
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 1]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 1]
 
-Internet-Draft                 BGP RR NHS                     March 2024
+Internet-Draft                 BGP RR NHS                 September 2024
 
 
-   This Internet-Draft will expire on 17 September 2024.
+   This Internet-Draft will expire on 21 March 2025.
 
 Copyright Notice
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 2]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 2]
 
-Internet-Draft                 BGP RR NHS                     March 2024
+Internet-Draft                 BGP RR NHS                 September 2024
 
 
    This document illustrates one such looping scenario, and specifies
@@ -165,9 +165,9 @@ Internet-Draft                 BGP RR NHS                     March 2024
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 3]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 3]
 
-Internet-Draft                 BGP RR NHS                     March 2024
+Internet-Draft                 BGP RR NHS                 September 2024
 
 
 3.  Problem Description
@@ -198,8 +198,8 @@ Internet-Draft                 BGP RR NHS                     March 2024
       direction being described is CE41 to CE31.
 
       AS2 is further divided into two regions.  There are three tunnel
-      domains in provider's network: The two regions in AS1 use RSVP
-      intra-domain tunnel.  AS2 also uses RSVP-TE intra-domain tunnels.
+      domains in provider's network: The two regions in AS2 use RSVP
+      intra-domain tunnel.  AS1 also uses RSVP-TE intra-domain tunnels.
       MPLS forwarding is used within these domains and on inter-domain
       links.  BGP LU (AFI/SAFI: 1/4) is the transport family providing
       reachability between PE loopbacks PE25 and PE11.
@@ -221,9 +221,9 @@ Internet-Draft                 BGP RR NHS                     March 2024
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 4]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 4]
 
-Internet-Draft                 BGP RR NHS                     March 2024
+Internet-Draft                 BGP RR NHS                 September 2024
 
 
       -  ABR24_to_ABR23 - metric 30
@@ -277,9 +277,9 @@ Internet-Draft                 BGP RR NHS                     March 2024
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 5]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 5]
 
-Internet-Draft                 BGP RR NHS                     March 2024
+Internet-Draft                 BGP RR NHS                 September 2024
 
 
 4.1.  Using Same Cluster ID at the ABRs
@@ -333,9 +333,9 @@ Internet-Draft                 BGP RR NHS                     March 2024
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 6]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 6]
 
-Internet-Draft                 BGP RR NHS                     March 2024
+Internet-Draft                 BGP RR NHS                 September 2024
 
 
    However this approach allows using the ABR-ABR tunnels to be used as
@@ -389,9 +389,9 @@ Internet-Draft                 BGP RR NHS                     March 2024
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 7]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 7]
 
-Internet-Draft                 BGP RR NHS                     March 2024
+Internet-Draft                 BGP RR NHS                 September 2024
 
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -445,9 +445,9 @@ A.1.  Document History
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 8]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 8]
 
-Internet-Draft                 BGP RR NHS                     March 2024
+Internet-Draft                 BGP RR NHS                 September 2024
 
 
 Acknowledgements
@@ -501,4 +501,4 @@ Authors' Addresses
 
 
 
-Vairavakkalai & VenkatarExpires 17 September 2024               [Page 9]
+Vairavakkalai & VenkataramExpires 21 March 2025                 [Page 9]
