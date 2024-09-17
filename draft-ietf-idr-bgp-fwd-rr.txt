@@ -452,8 +452,9 @@ Internet-Draft                 BGP RR NHS                 September 2024
 
 Acknowledgements
 
-   The authors thank Jeff Haas, Jon Hardwick, Keyur Patel, Robert
-   Raszuk, Susan Hares for the discussions and review comments.
+   The authors thank Jeff Haas, Jon Hardwick, Keyur Patel, Igor
+   Malyushkin, Robert Raszuk, Susan Hares for the discussions and review
+   comments.
 
 Authors' Addresses
 
@@ -471,7 +472,6 @@ Authors' Addresses
    Sunnyvale, CA 94089
    United States of America
    Email: natv@juniper.net
-
 
 
 

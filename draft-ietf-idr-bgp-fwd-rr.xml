@@ -397,8 +397,9 @@
 
     <section anchor="Acknowledgements" numbered="false"
              title="Acknowledgements">
-      <t>The authors thank Jeff Haas, Jon Hardwick, Keyur Patel, Robert
-      Raszuk, Susan Hares for the discussions and review comments.</t>
+      <t>The authors thank Jeff Haas, Jon Hardwick, Keyur Patel, Igor
+      Malyushkin, Robert Raszuk, Susan Hares for the discussions and review
+      comments.</t>
     </section>
   </back>
 </rfc>
