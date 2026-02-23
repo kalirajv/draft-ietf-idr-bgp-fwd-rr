@@ -4,12 +4,12 @@
 
 Network Working Group                              K. Vairavakkalai, Ed.
 Internet-Draft                                      N. Venkataraman, Ed.
-Intended status: Experimental                     Juniper Networks, Inc.
-Expires: 23 February 2026                                 22 August 2025
+Intended status: Experimental                                        HPE
+Expires: 27 August 2026                                 23 February 2026
 
 
                  BGP Route Reflector with Next Hop Self
-                      draft-ietf-idr-bgp-fwd-rr-04
+                      draft-ietf-idr-bgp-fwd-rr-05
 
 Abstract
 
@@ -53,16 +53,16 @@ Status of This Memo
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 1]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 1]
 
-Internet-Draft                 BGP RR NHS                    August 2025
+Internet-Draft                 BGP RR NHS                  February 2026
 
 
-   This Internet-Draft will expire on 23 February 2026.
+   This Internet-Draft will expire on 27 August 2026.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 2]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 2]
 
-Internet-Draft                 BGP RR NHS                    August 2025
+Internet-Draft                 BGP RR NHS                  February 2026
 
 
    This document illustrates one such looping scenario, and specifies
@@ -165,9 +165,9 @@ Internet-Draft                 BGP RR NHS                    August 2025
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 3]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 3]
 
-Internet-Draft                 BGP RR NHS                    August 2025
+Internet-Draft                 BGP RR NHS                  February 2026
 
 
 3.  Problem Description
@@ -221,9 +221,9 @@ Internet-Draft                 BGP RR NHS                    August 2025
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 4]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 4]
 
-Internet-Draft                 BGP RR NHS                    August 2025
+Internet-Draft                 BGP RR NHS                  February 2026
 
 
       -  ABR24_to_ABR23 - metric 30
@@ -277,9 +277,9 @@ Internet-Draft                 BGP RR NHS                    August 2025
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 5]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 5]
 
-Internet-Draft                 BGP RR NHS                    August 2025
+Internet-Draft                 BGP RR NHS                  February 2026
 
 
 4.1.  Using Same Cluster ID at the ABRs
@@ -333,9 +333,9 @@ Internet-Draft                 BGP RR NHS                    August 2025
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 6]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 6]
 
-Internet-Draft                 BGP RR NHS                    August 2025
+Internet-Draft                 BGP RR NHS                  February 2026
 
 
    However this approach allows using the ABR-ABR tunnels to be used as
@@ -389,9 +389,9 @@ Internet-Draft                 BGP RR NHS                    August 2025
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 7]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 7]
 
-Internet-Draft                 BGP RR NHS                    August 2025
+Internet-Draft                 BGP RR NHS                  February 2026
 
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -445,9 +445,9 @@ A.1.  Document History
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 8]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 8]
 
-Internet-Draft                 BGP RR NHS                    August 2025
+Internet-Draft                 BGP RR NHS                  February 2026
 
 
 Acknowledgements
@@ -459,19 +459,19 @@ Acknowledgements
 Authors' Addresses
 
    Kaliraj Vairavakkalai (editor)
-   Juniper Networks, Inc.
+   HPE
    1133 Innovation Way,
    Sunnyvale, CA 94089
    United States of America
-   Email: kaliraj@juniper.net
+   Email: kaliraj.vairavakkalai@hpe.com
 
 
    Natrajan Venkataraman (editor)
-   Juniper Networks, Inc.
+   HPE
    1133 Innovation Way,
    Sunnyvale, CA 94089
    United States of America
-   Email: natv@juniper.net
+   Email: natrajan.venkataraman@hpe.com
 
 
 
@@ -501,4 +501,4 @@ Authors' Addresses
 
 
 
-Vairavakkalai & VenkatarExpires 23 February 2026                [Page 9]
+Vairavakkalai & VenkataraExpires 27 August 2026                 [Page 9]

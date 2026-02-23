@@ -10,14 +10,14 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-idr-bgp-fwd-rr-04" ipr="trust200902"
+<rfc category="exp" docName="draft-ietf-idr-bgp-fwd-rr-05" ipr="trust200902"
      submissionType="IETF" updates="">
   <front>
     <title abbrev="BGP RR NHS">BGP Route Reflector with Next Hop Self</title>
 
     <author fullname="Kaliraj Vairavakkalai" initials="K." role="editor"
             surname="Vairavakkalai">
-      <organization>Juniper Networks, Inc.</organization>
+      <organization>HPE</organization>
 
       <address>
         <postal>
@@ -32,13 +32,13 @@
           <country>US</country>
         </postal>
 
-        <email>kaliraj@juniper.net</email>
+        <email>kaliraj.vairavakkalai@hpe.com</email>
       </address>
     </author>
 
     <author fullname="Natrajan Venkataraman" initials="N." role="editor"
             surname="Venkataraman">
-      <organization>Juniper Networks, Inc.</organization>
+      <organization>HPE</organization>
 
       <address>
         <postal>
@@ -53,11 +53,11 @@
           <country>US</country>
         </postal>
 
-        <email>natv@juniper.net</email>
+        <email>natrajan.venkataraman@hpe.com</email>
       </address>
     </author>
 
-    <date day="22" month="August" year="2025"/>
+    <date day="23" month="February" year="2026"/>
 
     <abstract>
       <t>The procedures in BGP Route Reflection (RR) spec RFC4456 primarily
